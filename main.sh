@@ -8,8 +8,9 @@ export TOKEN="token"
 # - путь к файлу (./sell.jpg)
 # - URL (https://...)
 # - file_id (самый удобный вариант после первой отправки)
-PHOTO_SELL="${PHOTO_SELL:-./sell.png}"
-PHOTO_BUY="${PHOTO_BUY:-./buy.png}"
+PHOTO_SELL="./sell.png"
+PHOTO_BUY="./buy.png"
+PHOTO_RAKETA="./sminem.png"
 
 COOLDOWN_SECONDS="${COOLDOWN_SECONDS:-10}"
 
@@ -94,10 +95,12 @@ while true; do
 
     photo_to_send=""
     # границы слова: не буква/цифра/подчёркивание
-    if grep -Eq '(^|[^[:alnum:]_])(Продал|продал|Подпродал|подпродал)([^[:alnum:]_]|$)' <<<"$low"; then
-      photo_to_send="$PHOTO_SELL"
-    elif grep -Eq '(^|[^[:alnum:]_])(Купил|купил|Закупил|закупил|Подкупил|подкупил|Закупился|закупился)([^[:alnum:]_]|$)' <<<"$low"; then
-      photo_to_send="$PHOTO_BUY"
+    if grep -Eq '(^|[^[:alnum:]_])(продал|подпродал)([^[:alnum:]_]|$)' <<<"$low"; then
+        photo_to_send="$PHOTO_SELL"
+    elif grep -Eq '(^|[^[:alnum:]_])(купил|закупил|подкупил|закупился)([^[:alnum:]_]|$)' <<<"$low"; then
+        photo_to_send="$PHOTO_BUY"
+    elif grep -Eq '(^|[^[:alnum:]_])(ракета|ракетит)([^[:alnum:]_]|$)' <<<"$low"; then
+        photo_to_send="$PHOTO_RAKETA"
     else
       continue
     fi
