@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # === НАСТРОЙКИ ===
-export TOKEN="8459576074:AAHkuH-kajdVx-TVaT2AwAn48PiY1VkDQqs"
+export TOKEN="TOKEN"
 
 # Картинки можно задавать как:
 # - путь к файлу (./sell.jpg)
