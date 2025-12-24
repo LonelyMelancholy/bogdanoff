@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # === НАСТРОЙКИ ===
-export TOKEN="TOKEN"
+export TOKEN="token"
 
 # Картинки можно задавать как:
 # - путь к файлу (./sell.jpg)
@@ -11,7 +11,7 @@ export TOKEN="TOKEN"
 PHOTO_SELL="${PHOTO_SELL:-./sell.png}"
 PHOTO_BUY="${PHOTO_BUY:-./buy.png}"
 
-COOLDOWN_SECONDS="${COOLDOWN_SECONDS:-60}"
+COOLDOWN_SECONDS="${COOLDOWN_SECONDS:-10}"
 
 OFFSET_FILE="${OFFSET_FILE:-./offset.txt}"
 COOLDOWN_FILE="${COOLDOWN_FILE:-./cooldowns.txt}"
@@ -94,9 +94,9 @@ while true; do
 
     photo_to_send=""
     # границы слова: не буква/цифра/подчёркивание
-    if grep -Eq '(^|[^[:alnum:]_])(продал|подпродал)([^[:alnum:]_]|$)' <<<"$low"; then
+    if grep -Eq '(^|[^[:alnum:]_])(Продал|продал|Подпродал|подпродал)([^[:alnum:]_]|$)' <<<"$low"; then
       photo_to_send="$PHOTO_SELL"
-    elif grep -Eq '(^|[^[:alnum:]_])(купил|закупил|подкупил)([^[:alnum:]_]|$)' <<<"$low"; then
+    elif grep -Eq '(^|[^[:alnum:]_])(Купил|купил|Закупил|закупил|Подкупил|подкупил|Закупился|закупился)([^[:alnum:]_]|$)' <<<"$low"; then
       photo_to_send="$PHOTO_BUY"
     else
       continue
