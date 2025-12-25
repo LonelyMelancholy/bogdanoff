@@ -103,7 +103,7 @@ while true; do
         photo_to_send="$PHOTO_BUY"
     elif grep -Eqi '(^|[^[:alnum:]_])(ракета|ракетит)([^[:alnum:]_]|$)' <<<"$text"; then
         photo_to_send="$PHOTO_RAKETA"
-    elif grep -Eqi '(^|[^[:alnum:]_])(как[[:space:]]+по[[:space:]]+нотам)([^[:alnum:]_]|$)' <<<"$text"; then
+    elif grep -Eqi '(^|[^[:alnum:]_])(как[[:space:]]+по[[:space:]]+нотам|многоходовочка)([^[:alnum:]_]|$)' <<<"$text"; then
         photo_to_send="$PHOTO_PUTIN"
     else
       continue
