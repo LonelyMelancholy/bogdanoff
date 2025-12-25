@@ -11,6 +11,8 @@ export TOKEN="token"
 PHOTO_SELL="./sell.png"
 PHOTO_BUY="./buy.png"
 PHOTO_RAKETA="./sminem.png"
+PHOTO_VTB="./vtb.png"
+PHOTO_PUTIN="./putin.png"
 
 COOLDOWN_SECONDS="${COOLDOWN_SECONDS:-10}"
 
@@ -91,16 +93,18 @@ while true; do
 
     [[ -z "$chat_id" || -z "$msg_id" || -z "$text" ]] && continue
 
-    low="$(tr '[:upper:]' '[:lower:]' <<<"$text")"
-
     photo_to_send=""
     # границы слова: не буква/цифра/подчёркивание
-    if grep -Eq '(^|[^[:alnum:]_])(продал|подпродал)([^[:alnum:]_]|$)' <<<"$low"; then
+    if grep -Eqi '(^|[^[:alnum:]_])(продал|подпродал)([^[:alnum:]_]|$)' <<<"$text"; then
         photo_to_send="$PHOTO_SELL"
-    elif grep -Eq '(^|[^[:alnum:]_])(купил|закупил|подкупил|закупился)([^[:alnum:]_]|$)' <<<"$low"; then
+    elif grep -Eqi '(^|[^[:alnum:]_])(купил[[:space:]]+втб|втб[[:space:]]+дивы|втб[[:space:]]+дивиденды|дивы[[:space:]]+втб|дивиденды[[:space:]]+втб)([^[:alnum:]_]|$)' <<<"$text"; then
+        photo_to_send="$PHOTO_VTB"
+    elif grep -Eqi '(^|[^[:alnum:]_])(купил|закупил|подкупил|закупился)([^[:alnum:]_]|$)' <<<"$text"; then
         photo_to_send="$PHOTO_BUY"
-    elif grep -Eq '(^|[^[:alnum:]_])(ракета|ракетит)([^[:alnum:]_]|$)' <<<"$low"; then
+    elif grep -Eqi '(^|[^[:alnum:]_])(ракета|ракетит)([^[:alnum:]_]|$)' <<<"$text"; then
         photo_to_send="$PHOTO_RAKETA"
+    elif grep -Eqi '(^|[^[:alnum:]_])(как[[:space:]]+по[[:space:]]+нотам)([^[:alnum:]_]|$)' <<<"$text"; then
+        photo_to_send="$PHOTO_PUTIN"
     else
       continue
     fi
