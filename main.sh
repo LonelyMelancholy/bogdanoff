@@ -15,6 +15,8 @@ PHOTO_VTB="./vtb.png"
 PHOTO_PUTIN="./putin.png"
 PHOTO_NALOG="./nalog.jpg"
 PHOTO_SVO="./svo.webp"
+PHOTO_PIPA="./pipa.mp4"
+
 COOLDOWN_SECONDS="${COOLDOWN_SECONDS:-10}"
 
 OFFSET_FILE="${OFFSET_FILE:-./offset.txt}"
@@ -110,6 +112,8 @@ while true; do
         photo_to_send="$PHOTO_NALOG"
     elif grep -Eqi '(^|[^[:alnum:]_])(сво)([^[:alnum:]_]|$)' <<<"$text"; then
         photo_to_send="$PHOTO_SVO"
+    elif grep -Eqi '(^|[^[:alnum:]_])(путин)([^[:alnum:]_]|$)' <<<"$text"; then
+        photo_to_send="$PHOTO_PIPA"
     else
       continue
     fi
