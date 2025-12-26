@@ -18,7 +18,6 @@ PHOTO_SVO="./svo.webp"
 PHOTO_PIPA="./pipa.mp4"
 
 COOLDOWN_SECONDS="${COOLDOWN_SECONDS:-10}"
-
 OFFSET_FILE="${OFFSET_FILE:-./offset.txt}"
 COOLDOWN_FILE="${COOLDOWN_FILE:-./cooldowns.txt}"
 
@@ -45,23 +44,81 @@ set_last_ts() {
   fi
 }
 
-send_photo() {
+send_media() {
   local chat_id="$1"
   local reply_to="$2"
-  local photo="$3"
+  local media="$3"
 
-  if [[ -f "$photo" ]]; then
-    curl -sS -X POST "$API/sendPhoto" \
+  # Принудительный тип через префикс:
+  # photo:..., video:..., anim:... (или animation:...), doc:... (или document:...)
+  local forced=""
+  case "$media" in
+    photo:*)     forced="photo";     media="${media#photo:}" ;;
+    video:*)     forced="video";     media="${media#video:}" ;;
+    anim:*)      forced="animation"; media="${media#anim:}" ;;
+    animation:*) forced="animation"; media="${media#animation:}" ;;
+    doc:*)       forced="document";  media="${media#doc:}" ;;
+    document:*)  forced="document";  media="${media#document:}" ;;
+  esac
+
+  local kind="$forced"
+
+  # Определяем тип, если не задан принудительно
+  if [[ -z "$kind" ]]; then
+    if [[ -f "$media" ]]; then
+      # Локальный файл: определяем по mime (надежнее)
+      local mime ext
+      mime="$(file -b --mime-type "$media" 2>/dev/null || true)"
+      ext="${media##*.}"; ext="${ext,,}"
+
+      if [[ "$mime" == video/* ]]; then
+        kind="video"
+      elif [[ "$mime" == image/gif ]] || [[ "$ext" == "gif" ]]; then
+        kind="animation"
+      elif [[ "$mime" == image/* ]]; then
+        kind="photo"
+      else
+        kind="document"
+      fi
+    else
+      # URL или file_id: mime не узнать -> пытаемся по расширению (для URL)
+      local base ext
+      base="${media%%\?*}"        # убираем query-string
+      ext="${base##*.}"; ext="${ext,,}"
+
+      case "$ext" in
+        jpg|jpeg|png|webp|bmp|tif|tiff) kind="photo" ;;
+        gif)                           kind="animation" ;;
+        mp4|mov|mkv|webm)              kind="video" ;;
+        *)                             kind="document" ;;  # file_id без расширения попадёт сюда
+      esac
+    fi
+  fi
+
+  # Маппинг тип -> метод и имя поля
+  local method field
+  case "$kind" in
+    photo)     method="sendPhoto";     field="photo" ;;
+    video)     method="sendVideo";     field="video" ;;
+    animation) method="sendAnimation"; field="animation" ;;
+    document)  method="sendDocument";  field="document" ;;
+    *)         method="sendDocument";  field="document" ;;
+  esac
+
+  # Отправка
+  if [[ -f "$media" ]]; then
+    curl -sS -X POST "$API/$method" \
       -F "chat_id=$chat_id" \
       -F "reply_to_message_id=$reply_to" \
-      -F "photo=@${photo}" >/dev/null
+      -F "$field=@${media}" >/dev/null
   else
-    curl -sS -X POST "$API/sendPhoto" \
+    curl -sS -X POST "$API/$method" \
       -d "chat_id=$chat_id" \
       -d "reply_to_message_id=$reply_to" \
-      -d "photo=$photo" >/dev/null
+      -d "$field=$media" >/dev/null
   fi
 }
+
 
 OFFSET=0
 if [[ -f "$OFFSET_FILE" ]]; then
@@ -96,24 +153,24 @@ while true; do
 
     [[ -z "$chat_id" || -z "$msg_id" || -z "$text" ]] && continue
 
-    photo_to_send=""
+    media_to_send=""
     # границы слова: не буква/цифра/подчёркивание
     if grep -Eqi '(^|[^[:alnum:]_])(продал|подпродал)([^[:alnum:]_]|$)' <<<"$text"; then
-        photo_to_send="$PHOTO_SELL"
+        media_to_send="$PHOTO_SELL"
     elif grep -Eqi '(^|[^[:alnum:]_])(купил[[:space:]]+втб|втб[[:space:]]+дивы|втб[[:space:]]+дивиденды|дивы[[:space:]]+втб|дивиденды[[:space:]]+втб)([^[:alnum:]_]|$)' <<<"$text"; then
-        photo_to_send="$PHOTO_VTB"
+        media_to_send="$PHOTO_VTB"
     elif grep -Eqi '(^|[^[:alnum:]_])(купил|закупил|подкупил|закупился)([^[:alnum:]_]|$)' <<<"$text"; then
-        photo_to_send="$PHOTO_BUY"
+        media_to_send="$PHOTO_BUY"
     elif grep -Eqi '(^|[^[:alnum:]_])(ракет[[:alpha:]]*)([^[:alnum:]_]|$)' <<<"$text"; then
-        photo_to_send="$PHOTO_RAKETA"
+        media_to_send="$PHOTO_RAKETA"
     elif grep -Eqi '(^|[^[:alnum:]_])(как[[:space:]]+по[[:space:]]+нотам|многоходовочка)([^[:alnum:]_]|$)' <<<"$text"; then
-        photo_to_send="$PHOTO_PUTIN"
+        media_to_send="$PHOTO_PUTIN"
     elif grep -Eqi '(^|[^[:alnum:]_])(ндс|налог[[:alpha:]]*)([^[:alnum:]_]|$)' <<<"$text"; then
-        photo_to_send="$PHOTO_NALOG"
+        media_to_send="$PHOTO_NALOG"
     elif grep -Eqi '(^|[^[:alnum:]_])(сво)([^[:alnum:]_]|$)' <<<"$text"; then
-        photo_to_send="$PHOTO_SVO"
+        media_to_send="$PHOTO_SVO"
     elif grep -Eqi '(^|[^[:alnum:]_])(путин)([^[:alnum:]_]|$)' <<<"$text"; then
-        photo_to_send="$PHOTO_PIPA"
+        media_to_send="$PHOTO_PIPA"
     else
       continue
     fi
@@ -126,7 +183,7 @@ while true; do
       continue
     fi
 
-    send_photo "$chat_id" "$msg_id" "$photo_to_send"
+    send_media "$chat_id" "$msg_id" "$media_to_send"
     set_last_ts "$chat_id" "$now"
 
   done < <(jq -c '.result[]' <<<"$RESP")
