@@ -13,7 +13,8 @@ PHOTO_BUY="./buy.png"
 PHOTO_RAKETA="./sminem.png"
 PHOTO_VTB="./vtb.png"
 PHOTO_PUTIN="./putin.png"
-
+PHOTO_NALOG="./nalog.jpg"
+PHOTO_SVO="./svo.webp"
 COOLDOWN_SECONDS="${COOLDOWN_SECONDS:-10}"
 
 OFFSET_FILE="${OFFSET_FILE:-./offset.txt}"
@@ -101,10 +102,14 @@ while true; do
         photo_to_send="$PHOTO_VTB"
     elif grep -Eqi '(^|[^[:alnum:]_])(купил|закупил|подкупил|закупился)([^[:alnum:]_]|$)' <<<"$text"; then
         photo_to_send="$PHOTO_BUY"
-    elif grep -Eqi '(^|[^[:alnum:]_])(ракета|ракетит)([^[:alnum:]_]|$)' <<<"$text"; then
+    elif grep -Eqi '(^|[^[:alnum:]_])(ракет[[:alpha:]]*)([^[:alnum:]_]|$)' <<<"$text"; then
         photo_to_send="$PHOTO_RAKETA"
     elif grep -Eqi '(^|[^[:alnum:]_])(как[[:space:]]+по[[:space:]]+нотам|многоходовочка)([^[:alnum:]_]|$)' <<<"$text"; then
         photo_to_send="$PHOTO_PUTIN"
+    elif grep -Eqi '(^|[^[:alnum:]_])(ндс|налог[[:alpha:]]*)([^[:alnum:]_]|$)' <<<"$text"; then
+        photo_to_send="$PHOTO_NALOG"
+    elif grep -Eqi '(^|[^[:alnum:]_])(сво)([^[:alnum:]_]|$)' <<<"$text"; then
+        photo_to_send="$PHOTO_SVO"
     else
       continue
     fi
