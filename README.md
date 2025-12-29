@@ -1,10 +1,5 @@
 # Bogdanoff bot
 
-## Установка
-- Скачайте `git clone https://github.com/LonelyMelancholy/bogdanoff.git`
-- Вставьте в secret.env токен бота
-- Запустите nohup ./main.sh &
-
 ## Что это такое
 Смешной бот присылающий файлы мемы на тему инвестиций и политики в ответ на ключевые слова, регистр не имеет значения, * любые буквы в слове:
 - продал|подпродал
@@ -18,3 +13,15 @@
 - дивиденд*
 - договорня*
 - зел*
+
+## Установка
+- Скачайте `git clone https://github.com/LonelyMelancholy/bogdanoff.git`
+- Вставьте в secret.env токен бота
+- Запустите nohup ./main.sh &
+- В настройках бота в телеграмме /setprivacy должно быть disable
+
+## Требования
+- Ubuntu 20.04+
+- Установленный jq
+
+По всем вопросам телеграмм [@lonely_melancholy](https://t.me/lonely_melancholy)
