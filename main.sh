@@ -1,27 +1,34 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# === НАСТРОЙКИ ===
-export TOKEN="token"
+# source secret file with bot token
+readonly ENV_FILE="./secrets.env"
+source "$ENV_FILE"
 
-# Картинки можно задавать как:
-# - путь к файлу (./sell.jpg)
-# - URL (https://...)
-# - file_id (самый удобный вариант после первой отправки)
-PHOTO_SELL="./sell.png"
-PHOTO_BUY="./buy.png"
-PHOTO_RAKETA="./sminem.png"
-PHOTO_VTB="./vtb.png"
-PHOTO_PUTIN="./putin.png"
-PHOTO_NALOG="./nalog.jpg"
-PHOTO_SVO="./svo.webp"
-PHOTO_PIPA="./pipa.mp4"
+# check token from secret file
+[[ -z "$BOT_TOKEN" ]] && { echo "❌ Error: Telegram bot token is missing in '$ENV_FILE', exit"; exit 1; }
 
-COOLDOWN_SECONDS="${COOLDOWN_SECONDS:-10}"
+# file path
+PHOTO_SELL="pic/sell.png"
+PHOTO_BUY="pic/buy.png"
+PHOTO_RAKETA="pic/sminem.png"
+PHOTO_VTB="pic/vtb.png"
+PHOTO_PUTIN="pic/putin.png"
+PHOTO_NALOG="pic/nalog.jpg"
+PHOTO_SVO="pic/svo.webp"
+PHOTO_PIPA="pic/pipa.mp4"
+PHOTO_DIVI="pic/divi.jpg"
+PHOTO_DOGOVOR="pic/dogovor.mp4"
+PHOTO_ZEL1="pic/zel1.jpg"
+PHOTO_ZEL2="pic/zel2.jpg"
+PHOTO_ZEL3="pic/zel3.jpg"
+ZELE=( "$PHOTO_ZEL1" "$PHOTO_ZEL2" "$PHOTO_ZEL3")
+
+COOLDOWN_SECONDS="10"
 OFFSET_FILE="${OFFSET_FILE:-./offset.txt}"
 COOLDOWN_FILE="${COOLDOWN_FILE:-./cooldowns.txt}"
 
-API="https://api.telegram.org/bot${TOKEN}"
+API="https://api.telegram.org/bot${BOT_TOKEN}"
 
 touch "$COOLDOWN_FILE" 2>/dev/null || true
 
@@ -119,7 +126,6 @@ send_media() {
   fi
 }
 
-
 OFFSET=0
 if [[ -f "$OFFSET_FILE" ]]; then
   OFFSET="$(cat "$OFFSET_FILE" 2>/dev/null || echo 0)"
@@ -157,20 +163,26 @@ while true; do
     # границы слова: не буква/цифра/подчёркивание
     if grep -Eqi '(^|[^[:alnum:]_])(продал|подпродал)([^[:alnum:]_]|$)' <<<"$text"; then
         media_to_send="$PHOTO_SELL"
-    elif grep -Eqi '(^|[^[:alnum:]_])(купил[[:space:]]+втб|втб[[:space:]]+дивы|втб[[:space:]]+дивиденды|дивы[[:space:]]+втб|дивиденды[[:space:]]+втб)([^[:alnum:]_]|$)' <<<"$text"; then
-        media_to_send="$PHOTO_VTB"
-    elif grep -Eqi '(^|[^[:alnum:]_])(купил|закупил|подкупил|закупился)([^[:alnum:]_]|$)' <<<"$text"; then
+    elif grep -Eqi '(^|[^[:alnum:]_])(купил|закупил|подкупил|закупился|докупил)([^[:alnum:]_]|$)' <<<"$text"; then
         media_to_send="$PHOTO_BUY"
+    elif grep -Eqi '(^|[^[:alnum:]_])(втб)([^[:alnum:]_]|$)' <<<"$text"; then
+        media_to_send="$PHOTO_VTB"
     elif grep -Eqi '(^|[^[:alnum:]_])(ракет[[:alpha:]]*)([^[:alnum:]_]|$)' <<<"$text"; then
         media_to_send="$PHOTO_RAKETA"
-    elif grep -Eqi '(^|[^[:alnum:]_])(как[[:space:]]+по[[:space:]]+нотам|многоходовочка)([^[:alnum:]_]|$)' <<<"$text"; then
+    elif grep -Eqi '(^|[^[:alnum:]_])(как[[:space:]]+по[[:space:]]+нотам|многоходовочка|хитрый[[:space:]]+план)([^[:alnum:]_]|$)' <<<"$text"; then
         media_to_send="$PHOTO_PUTIN"
     elif grep -Eqi '(^|[^[:alnum:]_])(ндс|налог[[:alpha:]]*)([^[:alnum:]_]|$)' <<<"$text"; then
         media_to_send="$PHOTO_NALOG"
     elif grep -Eqi '(^|[^[:alnum:]_])(сво)([^[:alnum:]_]|$)' <<<"$text"; then
         media_to_send="$PHOTO_SVO"
-    elif grep -Eqi '(^|[^[:alnum:]_])(путин)([^[:alnum:]_]|$)' <<<"$text"; then
+    elif grep -Eqi '(^|[^[:alnum:]_])(путин[[:alpha:]]*)([^[:alnum:]_]|$)' <<<"$text"; then
         media_to_send="$PHOTO_PIPA"
+    elif grep -Eqi '(^|[^[:alnum:]_])(дивиденд[[:alpha:]]*)([^[:alnum:]_]|$)' <<<"$text"; then
+        media_to_send="$PHOTO_DIVI"
+    elif grep -Eqi '(^|[^[:alnum:]_])(договорня[[:alpha:]]*)([^[:alnum:]_]|$)' <<<"$text"; then
+        media_to_send="$PHOTO_DOGOVOR"
+    elif grep -Eqi '(^|[^[:alnum:]_])(зел[[:alpha:]]*)([^[:alnum:]_]|$)' <<<"$text"; then
+        media_to_send=""${ZELE[RANDOM % ${#ZELE[@]}]}""
     else
       continue
     fi
