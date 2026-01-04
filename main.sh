@@ -15,7 +15,7 @@ PHOTO_RAKETA="pic/sminem.png"
 PHOTO_VTB="pic/vtb.png"
 PHOTO_PUTIN="pic/putin.png"
 PHOTO_NALOG="pic/nalog.jpg"
-PHOTO_SVO="pic/svo.webp"
+PHOTO_KALIBR="pic/svo.webp"
 PHOTO_PIPA="pic/pipa.mp4"
 PHOTO_DIVI="pic/divi.jpg"
 PHOTO_DOGOVOR="pic/dogovor.mp4"
@@ -23,6 +23,8 @@ PHOTO_ZEL1="pic/zel1.jpg"
 PHOTO_ZEL2="pic/zel2.jpg"
 PHOTO_ZEL3="pic/zel3.jpg"
 ZELE=( "$PHOTO_ZEL1" "$PHOTO_ZEL2" "$PHOTO_ZEL3")
+PHOTO_TEHANAL="pic/tehanal.jpg"
+PHOTO_BUFFET="pic/buffet.jpg"
 
 COOLDOWN_SECONDS="10"
 OFFSET_FILE="${OFFSET_FILE:-./offset.txt}"
@@ -173,16 +175,20 @@ while true; do
         media_to_send="$PHOTO_PUTIN"
     elif grep -Eqi '(^|[^[:alnum:]_])(ндс|налог[[:alpha:]]*)([^[:alnum:]_]|$)' <<<"$text"; then
         media_to_send="$PHOTO_NALOG"
-    elif grep -Eqi '(^|[^[:alnum:]_])(сво)([^[:alnum:]_]|$)' <<<"$text"; then
-        media_to_send="$PHOTO_SVO"
+    elif grep -Eqi '(^|[^[:alnum:]_])(втруху|бахнем|)([^[:alnum:]_]|$)' <<<"$text"; then
+        media_to_send="$PHOTO_KALIBR"
     elif grep -Eqi '(^|[^[:alnum:]_])(путин[[:alpha:]]*)([^[:alnum:]_]|$)' <<<"$text"; then
         media_to_send="$PHOTO_PIPA"
     elif grep -Eqi '(^|[^[:alnum:]_])(дивиденд[[:alpha:]]*)([^[:alnum:]_]|$)' <<<"$text"; then
         media_to_send="$PHOTO_DIVI"
     elif grep -Eqi '(^|[^[:alnum:]_])(договорня[[:alpha:]]*)([^[:alnum:]_]|$)' <<<"$text"; then
         media_to_send="$PHOTO_DOGOVOR"
-    elif grep -Eqi '(^|[^[:alnum:]_])(зел[[:alpha:]]*)([^[:alnum:]_]|$)' <<<"$text"; then
+    elif grep -Eqi '(^|[^[:alnum:]_])(зеленский|зеленского|зеленском|зеля|зелю|зелик)([^[:alnum:]_]|$)' <<<"$text"; then
         media_to_send=""${ZELE[RANDOM % ${#ZELE[@]}]}""
+    elif grep -Eqi '(^|[^[:alnum:]_])(теханал[[:alpha:]]*)([^[:alnum:]_]|$)' <<<"$text"; then
+        media_to_send="$PHOTO_TEHANAL"
+    elif grep -Eqi '(^|[^[:alnum:]_])(баффет[[:alpha:]]*|бафет[[:alpha:]]*)([^[:alnum:]_]|$)' <<<"$text"; then
+        media_to_send="$PHOTO_BUFFET"
     else
       continue
     fi
