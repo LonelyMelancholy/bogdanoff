@@ -175,7 +175,7 @@ while true; do
         media_to_send="$PHOTO_PUTIN"
     elif grep -Eqi '(^|[^[:alnum:]_])(ндс|налог[[:alpha:]]*)([^[:alnum:]_]|$)' <<<"$text"; then
         media_to_send="$PHOTO_NALOG"
-    elif grep -Eqi '(^|[^[:alnum:]_])(втруху|бахнем|)([^[:alnum:]_]|$)' <<<"$text"; then
+    elif grep -Eqi '(^|[^[:alnum:]_])(втруху|бахнем)([^[:alnum:]_]|$)' <<<"$text"; then
         media_to_send="$PHOTO_KALIBR"
     elif grep -Eqi '(^|[^[:alnum:]_])(путин[[:alpha:]]*)([^[:alnum:]_]|$)' <<<"$text"; then
         media_to_send="$PHOTO_PIPA"
